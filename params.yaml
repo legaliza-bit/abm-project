@@ -1,0 +1,29 @@
+model:
+  num_agents: 95
+  ema_param: 0.2  # exponential moving average parameter
+  r_base: 0  # baseline interest
+  intensity: 0.8  # intensity of policy
+  inf_target: 0.04  # target inflation set by CB
+  trust: 0.8
+  width: 10
+  height: 10
+bank:
+  mu_loan: 0.5
+  mu_dep: 0.1
+  ltv: 0.5
+firm:
+  output_zero: 1000
+  adj_w: 0.2
+  adj_p: 0.1 # скорость адаптации цены
+  nu_2: 0.2
+household:
+  ptc: 0.5 # склонность к потреблению из дохода
+  sens: 0.5
+  mu_k: 30
+  sigma_k: 15
+  mu_1: 0.01
+  mu_2: 0.011
+  sigma: 0.0115
+  inv_cost: 40
+  mean_w: 100
+  sigma_w: 30
