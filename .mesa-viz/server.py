@@ -3,7 +3,7 @@ import yaml
 import numpy as np
 
 from model import EconomyModel
-from hist_module import HistogramModule
+
 
 with open("params.yaml", 'r') as stream:
     config = yaml.safe_load(stream)
@@ -16,17 +16,21 @@ def agent_portrayal(agent):
                  "Filled": "true",
                  "Layer": 0,
                  "Color": "red",
-                 "r": 0.5}
-    if agent.wealth > 100:
+                 "r": 0.6}
+    if agent.wealth > agent.rich_th:
         portrayal["Color"] = "red"
         portrayal["Layer"] = 0
-    elif agent.wealth > 0:
+    elif agent.wealth > agent.mean_wealth:
         portrayal["Color"] = "orange"
         portrayal["Layer"] = 1
+        portrayal["r"] = 0.5
+    elif agent.wealth > 0:
+        portrayal["Color"] = "yellow"
+        portrayal["Layer"] = 2
         portrayal["r"] = 0.4
     else:
         portrayal["Color"] = "grey"
-        portrayal["Layer"] = 2
+        portrayal["Layer"] = 3
         portrayal["r"] = 0.2
     return portrayal
 
@@ -103,15 +107,13 @@ gap = mesa.visualization.ChartModule(
 price = mesa.visualization.ChartModule(
     [{"Label": "Price", "Color": "Blue"}]
 )
-hist = HistogramModule(
-    bins=list(range(-100, 100, 10)),
-    canvas_height=200,
-    canvas_width=500
+rate = mesa.visualization.ChartModule(
+    [{"Label": "CB Rate", "Color": "Blue"}]
 )
 
 server = mesa.visualization.ModularServer(
     EconomyModel,
-    [grid, gini, inf, gap, price, hist],
+    [grid, gini, inf, gap, rate],
     "Economy Model",
     model_params
 )

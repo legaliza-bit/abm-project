@@ -1,10 +1,10 @@
 import mesa
 import yaml
 
-from household import Household
-from central_bank import CentralBank
-from bank import Bank
-from firm import Firm
+from agents.household import Household
+from agents.central_bank import CentralBank
+from agents.bank import Bank
+from agents.firm import Firm
 
 from reporters import *
 
@@ -24,24 +24,22 @@ class EconomyModel(mesa.Model):
                  inf_target=config_m['inf_target'],
                  ema_param=config_m['ema_param'],
                  trust=config_m['trust'],
-                 width=config_m['width'],
-                 height=config_m['height']
                  ):
         self.num_agents = N
-        self.households = []
         self.inf_target = inf_target
-        self.inf_actual = 0
-        self.inf_ema = 0
-        self.inf_expec = 0
-        self.unemployed = set()
-        self.unemployment = 0
-        self.agg_demand = 0
         self.ema_param = ema_param
         self.trust = trust
-        self.width = width
-        self.height = height
-        self.grid = mesa.space.MultiGrid(self.width, self.height, True)
+
+        self.inf_actual = self.inf_ema = self.inf_expec = 0
+
+        self.households = []
+        self.unemployed = set()
+
+        self.unemployment = 0
+
         self.schedule = mesa.time.StagedActivation(self)
+        self.to_kill = []
+
         # Create agents
         cb = CentralBank(unique_id=0,
                          model=self,
@@ -50,16 +48,19 @@ class EconomyModel(mesa.Model):
                          inf_target=inf_target
                          )
         self.schedule.add(cb)
+        self.cb = cb
 
         bank = Bank(unique_id=1,
                     model=self,
                     central_bank=cb,
                     bank_params=config['bank'])
         self.schedule.add(bank)
+        self.bank = bank
 
         firm = Firm(unique_id=2,
                     model=self,
                     central_bank=cb,
+                    output_0=self.num_agents,
                     firm_params=config['firm'])
         self.schedule.add(firm)
         self.firm = firm
@@ -74,10 +75,6 @@ class EconomyModel(mesa.Model):
             self.households.append(a)
             self.unemployed.add(a)
 
-            x = (a.unique_id - 2) % self.grid.width
-            y = (a.unique_id - 2) // self.grid.height
-            self.grid.place_agent(a, (x, y))
-
         self.agg_demand = sum([a.demand for a in self.households])
         firm.output = self.agg_demand
         firm._init_employment()
@@ -90,7 +87,8 @@ class EconomyModel(mesa.Model):
                 "Inflation Expectations": show_inf_expec,
                 "Output": show_output,
                 "Demand": show_demand,
-                "Price": show_price
+                "Price": show_price,
+                "CB Rate": show_rate
                 },
             agent_reporters={
                 "Wealth":
@@ -100,18 +98,19 @@ class EconomyModel(mesa.Model):
                 "Income":
                 lambda a: a.income if a.__class__ == Household else None,
                 "Desired Cons":
-                lambda a: a.desired_cons if a.__class__ == Household else None
+                lambda a: a.desired_cons if a.__class__ == Household else None,
+                "PTC":
+                lambda a: a.ptc if a.__class__ == Household else None
                 }
         )
 
     def upd_unemployment(self):
         self.unemployment = len(self.unemployed) / self.num_agents
-        print(f'unemployment: {self.unemployment}')
 
     def upd_inflation(self):
         # inflation expectations are formed adaptively
         self.inf_expec = self.trust * self.inf_target + (
-            1 - self.trust) * self.inf_ema
+            1 - self.trust) * self.inf_actual
 
         self.inf_actual = (
             self.firm.price - self.firm.prev_price
@@ -120,16 +119,16 @@ class EconomyModel(mesa.Model):
         self.inf_ema = self.ema_param * self.inf_actual + (
             1 - self.ema_param) * self.inf_ema
 
-        print(f'inflation {self.inf_actual}, inf_ema {self.inf_ema}')
-
     def upd_demand(self):
-        self.agg_demand = sum([a.desired_cons for a in self.households])
+        self.agg_demand = sum([a.demand for a in self.households])
 
     def step(self):
         """Advance the model by one step."""
         self.upd_unemployment()
         self.upd_inflation()
         self.upd_demand()
-        print(f'agg_demand: {self.agg_demand}, output: {self.firm.output}')
         self.datacollector.collect(self)
         self.schedule.step()
+        # for i in self.to_kill:
+        #     self.schedule.remove(i)
+        self.to_kill = []

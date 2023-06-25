@@ -1,4 +1,5 @@
 import mesa
+import numpy as np
 
 
 class CentralBank(mesa.Agent):
@@ -17,13 +18,14 @@ class CentralBank(mesa.Agent):
         self.rate = self.set_rate()
 
     def set_rate(self):
-        """Central Bank sets rate based on
-        augmented Taylor rule.
+        """Central Bank sets rate based on augmented Taylor rule.
         """
         self.rate = self.r_base + self.intensity * (
             self.model.inf_ema - self.inf_target
             )
+        # self.rate = 1 / (1+np.exp(-x))
+        if self.rate < 0:
+            self.rate = 0
 
     def step(self):
         self.set_rate()
-        print(f'I set a rate {self.rate}')

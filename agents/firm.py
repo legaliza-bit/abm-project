@@ -1,5 +1,5 @@
 import mesa
-from household import Household
+from agents.household import Household
 import numpy as np
 from random import choice
 
@@ -11,15 +11,17 @@ class Firm(mesa.Agent):
             unique_id,
             model,
             central_bank,
+            output_0,
             firm_params
             ):
         super().__init__(unique_id, model)
         self.cb = central_bank
-        self.output = firm_params['output_zero']
+        self.output = output_0
         self.adj_p = firm_params['adj_p']
         self.adj_w = firm_params['adj_w']
         self.nu_2 = firm_params['nu_2']
         self.nu_1 = self.nu_2
+        self.sens = firm_params['sens']
         self.wages = {}
         self.prev_price = 1
         self.price = 1
@@ -40,10 +42,9 @@ class Firm(mesa.Agent):
                     new_employees: list[Household]
                     ) -> dict[Household, int]:
         """Initialize wages for hired employees:
-        Each time we compute a baseline currently paid
-        per 'productivity unit' and then multiply by
-        employee productivity to get their wage.
-        Then we add the employee and their wage to dict.
+        Each period we compute a baseline currently paid per
+        'productivity unit' and then multiply by employee productivity
+        to get their wage. Then we add the employee and their wage to dict.
         """
         base_wage = self.output / sum([e.productivity for e in curr_employees])
         for e in new_employees:
@@ -65,9 +66,11 @@ class Firm(mesa.Agent):
         self.prev_price = self.price
 
         if self.state:
-            self.price *= (1 + self.model.inf_expec) * (1 + self.adj_p)
+            self.price *= (1 + self.model.inf_expec) * (
+                1 + self.adj_p * np.random.uniform(0, 1))
         else:
-            self.price *= (1 + self.model.inf_expec) * (1 - self.adj_p)
+            self.price *= (1 + self.model.inf_expec) * (
+                1 - self.adj_p * np.random.uniform(0, 1))
 
     def upd_output(self, gap):
         # update propensity to increase output and wages
@@ -79,7 +82,7 @@ class Firm(mesa.Agent):
         if self.state:
             self.output = self.output - self.nu_1 * gap
         else:
-            self.output = self.output + self.nu_2 * gap
+            self.output = self.output - self.nu_2 * gap
 
     def upd_workforce(self, gap: int):
         """Hire or fire employees.
@@ -92,16 +95,16 @@ class Firm(mesa.Agent):
         """
         if self.state:
             for e in self.wages.keys():
-                self.wages[e] *= 1 + self.adj_w
+                self.wages[e] *= (1 + self.sens * (1 - self.nu_1) * (
+                    1 - self.model.unemployment) * np.random.uniform(0, 1)) * (
+                    1 + self.sens * self.model.inf_expec)
 
             n_to_hire = int(
-                -gap / self.output * self.nu_1 * self.model.num_agents
+                -gap / self.output * self.nu_1 * len(self.model.unemployed)
                 )
-            print(f'I want to hire {n_to_hire} ppl')
             new_empl = []
             for _ in range(n_to_hire):
                 if not self.model.unemployed:
-                    print('full employment!')
                     break
                 new_e = self.model.unemployed.pop()
                 new_empl.append(new_e)
@@ -109,10 +112,12 @@ class Firm(mesa.Agent):
 
         else:
             for e in self.wages.keys():
-                self.wages[e] *= 1 - self.adj_w
+                self.wages[e] *= (
+                    1 - self.nu_2 * self.model.unemployment * np.random.uniform(0, 1)
+                    ) * (1 + self.sens * self.model.inf_expec)
 
             n_to_fire = int(
-                gap / self.output * self.nu_2 * self.model.num_agents
+                gap / self.output * self.nu_2 * len(self.wages)
                 )
             for _ in range(n_to_fire):
                 fired = choice(list(self.wages))

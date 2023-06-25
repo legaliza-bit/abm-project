@@ -28,3 +28,11 @@ def show_demand(model):
 
 def show_price(model):
     return model.firm.price
+
+
+def show_rate(model):
+    return model.cb.rate
+
+
+def show_unemployment(model):
+    return model.unemploymentss
