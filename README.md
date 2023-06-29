@@ -48,9 +48,11 @@ $$
 $$
 r_{loan} (t) = (1 + \mu_{loan}) \times \rho (t)
 $$
+
 $$
 r_{dep} (t) = (1 + \mu_{dep}) \times \rho (t)
 $$
+
 * $\mu_{loan}$ - **Lending rate mark-up**
 * $\mu_{dep}$ - **Deposit mark-down**
 
@@ -60,9 +62,11 @@ $$
 Агрегированная репрезентативная фирма.
 
 1. Производит абстрактный гомогенный товар по правилу:
+
 $$
 Y(t) \leq D(t) \rightarrow Y(t+1) = Y(t) + min[\eta +(D(t)-Y(t)), u(t)]
 $$
+
 $$
 Y(t) > D(t) \rightarrow Y (t+1) = Y(t) + \eta^-(D(t)-Y(t))
 $$
@@ -71,9 +75,11 @@ $$
 * $\eta^+ = \rho(t) \times \eta^-$ - **Excess demand sensitivity**
 
 2. Устанавливает цену:
+
 $$
 Y (t) \leq D (t) \rightarrow p(t+1) = p(t) \times (1+\hat{\pi}(t))(1+\nu_p \xi_i(t))
 $$
+
 $$
 Y(t) > D(t) \rightarrow p(t+1) = p(t) \times (1+\hat{\pi}(t))(1-\nu_p \xi_i(t))
 $$
@@ -83,19 +89,25 @@ $$
 * $\xi_i(t)$ - случайная величина $~Unif[0;1]$
 
 3. Выплачивает заработную плату:
+
 $$
 Y(t) \leq D(t) \rightarrow W(t+1) = W(t) \times \gamma \xi_i(t)(1-\\eta_+) (1-u(t))(1+\gamma\hat{\pi}(t))
 $$
-$$Y (t) > D (t) \rightarrow W(t+1)=W(t)\times \gamma \xi_i(t)(1 - \\eta_-)u(t)(1+\gamma \hat{\pi} (t))
+
 $$
+Y (t) > D (t) \rightarrow W(t+1)=W(t)\times \gamma \xi_i(t)(1 - \\eta_-)u(t)(1+\gamma \hat{\pi} (t))
+$$
+
 * $W(t)$ - базовая ставка заработной платы, которая для каждого агента умножается на его продуктивность
 * $\gamma$ - **Wage rigidity** - параметр "липкости" заработной платы
 * $u(t)$ - безработица в периоде $t$
 
 4. Нанимает и увольняет работников:
+
 $$
 Y (t) \leq D (t) \rightarrow N_{hire} = \frac{D(t)-Y(t)}{Y(t)} \times (1-u(t))
 $$
+
 $$
 Y (t) > D (t) \rightarrow N_{fire}= \frac{D(t)-Y(t)}{Y(t)} \times (1-u(t))
 $$
@@ -111,6 +123,7 @@ $$
 $$
 ptc = \sigma[(1+\alpha)(\hat{\pi}(t)- r_{dep} (t))]
 $$
+
 $$
 Z_i(t)=ptc \times \hat{W_i}(t) + k_i(t)
 $$
@@ -131,29 +144,35 @@ $$
 3. Совершает операции на кредитном рынке:
 
 Сберегает, если $Z_i(t)+I_i \leq B_i(t)$:
+
 $$
 Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{dep})
 $$
 
 Берет в долг, если $Z_i(t)+I_i > B_i(t)$:
 
-- Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) <= ltv \times B_i(t)$:
+Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) \leq ltv \times B_i(t)$:
+
 $$
 Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{loan})
 $$
 
-- Есть ограничения ликвидности, если $Z_i(t)+I_i-B_i(t) > ltv \times B_i(t)$:
-        - Домохозяйство решает не инвестировать I_i=0
-        - Если $Z_i(t)-B_i(t) <= ltv \times B_i(t)$, то
-        $$
-        Cred_i(t) = (Z_i(t)-B_i(t)) \times (1+r_{loan})
-        $$
-        - Иначе, д/х все еще ограничено, тогда:
-        $$
-        Cred_i(t) = ltv \times B_i(t) \times (1+r_{loan})
-        $$
+Есть ограничения ликвидности, если $Z_i(t)+I_i-B_i(t) > ltv \times B_i(t)$:
+- Домохозяйство решает не инвестировать I_i=0
+- Если $Z_i(t)-B_i(t) \leq ltv \times B_i(t)$, то
+
+$$
+Cred_i(t) = (Z_i(t)-B_i(t)) \times (1+r_{loan})
+$$
+
+- Иначе, д/х все еще ограничено, тогда:
+
+$$
+Cred_i(t) = ltv \times B_i(t) \times (1+r_{loan})
+$$
 
 4. Инвестирует в свою продуктивность:
+
 $$
 A_i(t+1) = A_i(t) * (1 + \xi_i (t))
 $$
@@ -163,11 +182,13 @@ $$
 5. Потребляет:
 
 Если д/х сберегает или не имеет ограничений ликвидности, то оно может позволить себе желаемое потребление:
+
 $$
 C_i(t) = Z_i(t)
 $$
 
 Иначе:
+
 $$
 C_i(t) = ltv * B_i(t)
 $$
@@ -178,28 +199,31 @@ $$
 ### **Переменные модели**
 
 Инфляция:
+
 $$
 \pi(t)=\frac{p(t)-p(t-1)}{p(t-1)}
 $$
 
 Инфляционные ожидания
+
 $$
 \hat{\pi}(t)=\tau \pi^* + (1-\tau) \pi^{ema}(t)
 $$
+
 * $\tau$ - **Trust of agents to central bank** - уровень доверия агентов к ЦБ
 
 Сглаженная инфляция:
-$$
-\pi^{ema} = \omega \pi(t) + (1-\omega) \pi^{ema}(t-1)
-$$
+$$\pi^{ema} = \omega \pi(t) + (1-\omega) \pi^{ema}(t-1)$$
 * $\omega$ - **Exponential MA Parameter** - параметр "сглаживания" инфляции
 
 Агрегированный спрос:
+
 $$
 D(t)=\Sigma_{i=1}^N C_i(t)
 $$
 
 Безработица:
+
 $$
 u(t)=u(t-1)+\frac{N_{fire}-N_{hire}}{N}
 $$
