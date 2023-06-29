@@ -22,9 +22,10 @@ class Firm(mesa.Agent):
         self.nu_2 = firm_params['nu_2']
         self.nu_1 = self.nu_2
         self.sens = firm_params['sens']
+
         self.wages = {}
-        self.prev_price = 1
-        self.price = 1
+
+        self.prev_price = self.price = 1
 
     def _init_employment(self):
         """Randomly initialize employment in the model."""
@@ -35,6 +36,8 @@ class Firm(mesa.Agent):
         for _ in range(N_empl):
             new_e = self.model.unemployed.pop()
             empl.append(new_e)
+
+        self.base_wage = self.output / N_empl
         self._init_wages(empl, empl)
 
     def _init_wages(self,
@@ -46,9 +49,9 @@ class Firm(mesa.Agent):
         'productivity unit' and then multiply by employee productivity
         to get their wage. Then we add the employee and their wage to dict.
         """
-        base_wage = self.output / sum([e.productivity for e in curr_employees])
+
         for e in new_employees:
-            self.wages[e] = base_wage * e.productivity
+            self.wages[e] = self.base_wage * e.productivity
 
     def det_state(self) -> int:
         """Determine if there is excess demand or excess
@@ -66,10 +69,10 @@ class Firm(mesa.Agent):
         self.prev_price = self.price
 
         if self.state:
-            self.price *= (1 + self.model.inf_expec) * (
+            self.price *= (1 + self.sens * self.model.inf_expec) * (
                 1 + self.adj_p * np.random.uniform(0, 1))
         else:
-            self.price *= (1 + self.model.inf_expec) * (
+            self.price *= (1 + self.sens * self.model.inf_expec) * (
                 1 - self.adj_p * np.random.uniform(0, 1))
 
     def upd_output(self, gap):
@@ -93,15 +96,17 @@ class Firm(mesa.Agent):
         New employees are taken randomly from the set of unemployed workers
         in the model. Employees are fired randomly also.
         """
+        self.base_wage = self.output / sum([e.productivity for e in self.wages.keys()])
+
         if self.state:
-            for e in self.wages.keys():
-                self.wages[e] *= (1 + self.sens * (1 - self.nu_1) * (
+            self.base_wage *= (1 + self.sens * (1 - self.nu_1) * (
                     1 - self.model.unemployment) * np.random.uniform(0, 1)) * (
                     1 + self.sens * self.model.inf_expec)
+            
+            for e in self.wages.keys():
+                self.wages[e] = self.base_wage * e.productivity
 
-            n_to_hire = int(
-                -gap / self.output * self.nu_1 * len(self.model.unemployed)
-                )
+            n_to_hire = int(self.nu_1 * -gap / self.output * len(self.wages))
             new_empl = []
             for _ in range(n_to_hire):
                 if not self.model.unemployed:
@@ -111,14 +116,14 @@ class Firm(mesa.Agent):
             self._init_wages(list(self.wages.keys()), new_empl)
 
         else:
-            for e in self.wages.keys():
-                self.wages[e] *= (
+            self.base_wage *= (
                     1 - self.nu_2 * self.model.unemployment * np.random.uniform(0, 1)
                     ) * (1 + self.sens * self.model.inf_expec)
+            
+            for e in self.wages.keys():
+                self.wages[e] = self.base_wage * e.productivity
 
-            n_to_fire = int(
-                gap / self.output * self.nu_2 * len(self.wages)
-                )
+            n_to_fire = int(self.nu_2 * gap / self.output * len(self.wages))
             for _ in range(n_to_fire):
                 fired = choice(list(self.wages))
                 self.wages.pop(fired)

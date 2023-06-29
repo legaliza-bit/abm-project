@@ -22,15 +22,15 @@ class EconomyModel(mesa.Model):
                  r_base=config_m['r_base'],
                  intensity=config_m['intensity'],
                  inf_target=config_m['inf_target'],
-                 ema_param=config_m['ema_param'],
                  trust=config_m['trust'],
+                 ema_param=config_m['ema_param'],
                  ):
         self.num_agents = N
         self.inf_target = inf_target
         self.ema_param = ema_param
         self.trust = trust
 
-        self.inf_actual = self.inf_ema = self.inf_expec = 0
+        self.inf_actual = self.inf_ema = self.inf_expec = self.inf_ema_prev = 0
 
         self.households = []
         self.unemployed = set()
@@ -88,7 +88,8 @@ class EconomyModel(mesa.Model):
                 "Output": show_output,
                 "Demand": show_demand,
                 "Price": show_price,
-                "CB Rate": show_rate
+                "CB Rate": show_rate,
+                "Unemployment": show_unemployment
                 },
             agent_reporters={
                 "Wealth":
@@ -116,8 +117,13 @@ class EconomyModel(mesa.Model):
             self.firm.price - self.firm.prev_price
             ) / self.firm.prev_price
 
-        self.inf_ema = self.ema_param * self.inf_actual + (
-            1 - self.ema_param) * self.inf_ema
+        if self.schedule.steps < 20:
+            self.inf_ema = self.inf_actual
+            self.inf_ema_prev += self.inf_actual
+        elif self.schedule.steps == 20:
+            self.inf_ema = self.inf_ema_prev / 20
+        else:
+            self.inf_ema = self.ema_param * self.inf_actual + (1 - self.ema_param) * self.inf_ema
 
     def upd_demand(self):
         self.agg_demand = sum([a.demand for a in self.households])
@@ -129,6 +135,3 @@ class EconomyModel(mesa.Model):
         self.upd_demand()
         self.datacollector.collect(self)
         self.schedule.step()
-        # for i in self.to_kill:
-        #     self.schedule.remove(i)
-        self.to_kill = []

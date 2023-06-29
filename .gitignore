@@ -1,4 +1,4 @@
-__pycache__
-.ipynb_checkpoints
-.mesa_viz
-.venv
+__pycache__/
+.ipynb_checkpoints/
+.mesa_viz/
+.venv/

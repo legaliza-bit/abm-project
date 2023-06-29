@@ -88,31 +88,24 @@ class Household(mesa.Agent):
         else:
             self.productivity *= (1 + np.random.normal(self.mu_2, self.sigma))
 
-    def consume(self, given_credit: int):
+    def consume(self, given_credit: int, interest: int):
         """Household spends wealth on consumption."""
         if given_credit <= 0:  # hh is a saver and can afford desired cons lvl
             self.demand = self.desired_cons
         else:  # hh is a borrower and may be credit constrained
             self.demand = min(
-                self.desired_cons, self.wealth + given_credit - self.investment
+                self.desired_cons,
+                self.wealth + given_credit + interest - self.investment
                 )
 
     def update_wealth(self, interest: int):
         self.wealth += interest - self.demand
-
-        # if self.wealth <= 0:
-        #     self.model.to_kill.append(self)
-        #     self.model.households.remove(self)
-        #     if self in self.model.unemployed:
-        #         self.model.unemployed.remove(self)
-        #     else:
-        #         self.firm.wages.pop(self)
 
     def step(self):
         self.plan_consumption()
         self.get_paid()
         given_credit, interest = self.credit_operations()
         self.invest()
-        self.consume(given_credit)
+        self.consume(given_credit, interest)
         self.update_wealth(interest)
         self.update_ptc()

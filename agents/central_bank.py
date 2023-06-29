@@ -23,7 +23,6 @@ class CentralBank(mesa.Agent):
         self.rate = self.r_base + self.intensity * (
             self.model.inf_ema - self.inf_target
             )
-        # self.rate = 1 / (1+np.exp(-x))
         if self.rate < 0:
             self.rate = 0
 

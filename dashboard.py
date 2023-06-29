@@ -17,9 +17,6 @@ suppress_callback_exceptions = True
 def blank_fig(**update_layput_params):
     fig = go.Figure(go.Scatter(x=[0], y=[0]))
     fig.update_layout(**update_layput_params)
-    # fig.update_xaxes(showgrid = False, showticklabels = False, zeroline=False)
-    # fig.update_yaxes(showgrid = False, showticklabels = False, zeroline=False)
-
     return fig
 
 
@@ -27,7 +24,7 @@ table_header = [
     html.Thead(html.Tr([html.Th("Description"), html.Th("Symbol"), html.Th("Value")]))
 ]
 
-row1 = html.Tr([html.Td("Exp MA Parameter"), html.Td(dcc.Markdown("$\\omega$",mathjax=True)), html.Td("0.5")])
+row1 = html.Tr([html.Td("Exponential MA Parameter"), html.Td(dcc.Markdown("$\\omega$",mathjax=True)), html.Td("0.2")])
 row2 = html.Tr([html.Td("Lending rate mark-up"), html.Td(dcc.Markdown("$\\mu_{loan}$",mathjax=True)), html.Td("0.5")])
 row3 = html.Tr([html.Td("Deposit mark-down"), html.Td(dcc.Markdown("$\\mu_{dep}$",mathjax=True)), html.Td("0.1")])
 row4 = html.Tr([html.Td("Loan-to-value ratio"), html.Td(dcc.Markdown("$ltv$",mathjax=True)), html.Td("0.5")])
@@ -49,10 +46,8 @@ table_body = [html.Tbody([row1, row2, row3, row4, row5, row6, row7,
 app = dash.Dash(external_stylesheets=[dbc.themes.MINTY])
 
 model = EconomyModel()
-# for i in range(50):
-#     model.step()
 
-# Определение внешнего вида приложения dash
+
 app.layout = html.Div([
         html.Div([
                 html.Div([
@@ -134,26 +129,25 @@ def switch_tab(at):
                         value=0.8,
                         placeholder='0.8',
                         type='number'),
-                    ],
-                    style={
-                            'marginRight': '20px',
-                            'flex': '1',
+                ], style={
+                        'marginRight': '20px',
+                        'flex': '1',
                         },
                     className='text-dark'),
-
-                html.Div(
-                    [
-                        html.H4("Fixed parameters", className='text-dark-emphasis'),
-                        dbc.Table(
+                html.Div([
+                    html.H4("Fixed parameters", className='text-dark-emphasis'),
+                    dbc.Accordion([
+                        dbc.AccordionItem([
+                            dbc.Table(
                             # using the same table as in the above example
-                            table_header + table_body,
-                            id="table-color",
+                                table_header + table_body,
+                                id="table-color",
                             # color="info",
-                            style={
-                                'border-radius': '10px',
-                            },
-                            className='text-dark'
-                        ),
+                                style={'border-radius': '10px'},
+                                className='text-dark'
+                            ),
+                        ], title="View",)
+                    ], start_collapsed=True)
                     ],
                     style={
                         'flex': '2',
@@ -261,6 +255,14 @@ def switch_tab(at):
                             ),
                     style={'width': '48%', 'flex': '1'}
                 ),
+                html.Div(
+                    dcc.Graph(id='u-graph',
+                            figure=blank_fig(
+                                title='Unemployment',
+                                xaxis_title='Step')
+                            ),
+                    style={'width': '48%', 'flex': '1'}
+                ),
             ], 
                 style={
                     'display': 'flex'
@@ -279,427 +281,263 @@ def switch_tab(at):
 
     elif at == "Theory":
         return html.Div([
-            dbc.Row([dbc.Col(),
+            dbc.Row([
+                dbc.Col(),
                 dbc.Col(
-                    dbc.CardImg(src=r'assets/flowchart.png',
-                                # className='align-self-center'
-                                ),
-                                width='6',
-            ), dbc.Col()], align='center'),
+                    dbc.CardImg(src=r'assets/flowchart.png',), width='6'
+                ),
+                dbc.Col()
+            ], align='center'),
             dbc.Row([
                 dbc.Col(
                     dbc.Card([
-                        dbc.CardHeader(html.H4("Центральный банк"),
-                                        style={'background': "rgba(255,120,80,255)",
-                                               "color": "white"}),
+                        dbc.CardHeader(
+                            html.H4("Центральный банк"
+                            ), style={'background': "rgba(255,120,80,255)", "color": "white"}
+                        ),
                         dbc.CardBody([
                             html.Div([
                                 dcc.Markdown(
-                                        '''
-                                        Центральный банк устанавливает ключевую ставку
-                                        каждый период согласно модифицированному правилу 
-                                        Тейлора:
-                                        '''
-                                    ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$\\rho (t) = \\rho_0 + \\phi_{\\pi} [\\pi^{ema} (t) - \\pi^*]$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                    )],
-                                        ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            * $\\rho_0$ - **Baseline interest rate** - базовая ставка,
-                                            устанавливаемая ЦБ: минимальная разрешенная ставка по
-                                            кредитам для коммерческих банков
-                                            * $\\phi_{\\pi}$ - **Intensity of Central Bank policy** -
-                                            "интенсивность" политики ЦБ (насколько сильно ЦБ
-                                            таргетирует инфляцию)
-                                            * $\\pi^*$ - **Central Bank target rate** - целевой
-                                            уровень инфляции, устанавливаемый ЦБ
-                                            * $\\pi^{ema} (t)$ - экспоненциальное скользящее среднее
-                                            инфляции в текущий период:
-                                            ''',
-                                            mathjax=True
-                                        ),
+                                    r'''
+
+                                    Центральный банк устанавливает ключевую ставку каждый период согласно модифицированному правилу Тейлора:
+
+                                    $$
+                                    \rho (t) = \rho_0 + \phi_{\pi} [\pi^{ema} (t) - \pi^*]
+                                    $$
+
+                                    * $\rho_0$ - **Baseline interest rate** - базовая ставка, устанавливаемая ЦБ: минимальная разрешенная ставка по кредитам для коммерческих банков
+                                    * $\phi_{\pi}$ - **Intensity of Central Bank policy** - "интенсивность" политики ЦБ (насколько сильно ЦБ таргетирует инфляцию)
+                                    * $\pi^*$ - **Central Bank target rate** - целевой уровень инфляции, устанавливаемый ЦБ
+                                    * $\pi^{ema} (t)$ - экспоненциальное скользящее среднее инфляции в текущий период:
+                                    ''', mathjax=True
                                 ),
-                            ], className="card-text")
-                        ],),], style={
-                            'flex': '2'
-                        }, color='danger', outline=True),
+                            ]),
+                        ], className="card-text")
+                    ], style={'flex': '2'}, color='danger', outline=True),
                 ),
                 dbc.Col(
                     dbc.Card([
-                        dbc.CardHeader(html.H4("Коммерческий банк"),
-                                        style={'background': "rgba(120,194,173,255)",
-                                               "color": "white"}),
+                        dbc.CardHeader(
+                            html.H4("Коммерческий банк"
+                            ), style={'background': "rgba(120,194,173,255)", "color": "white"}
+                        ),
                         dbc.CardBody([
                             html.Div([
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            Агрегированный репрезентативный банк. Выдает кредиты и
-                                            принимает депозиты. Меняет свои ставки в зависимости 
-                                            от ключевой ставки ЦБ по следующим правилам:
-                                            '''
-                                        ),
+                                dcc.Markdown(
+                                    r'''
+
+                                    Агрегированный репрезентативный банк. Выдает кредиты и принимает депозиты. 
+                                    Меняет свои ставки в зависимости от ключевой ставки ЦБ по следующим правилам:
+
+                                    $$
+                                    r_{loan} (t) = (1 + \mu_{loan}) \times \rho (t)
+                                    $$
+                                    $$
+                                    r_{dep} (t) = (1 + \mu_{dep}) \times \rho (t)
+                                    $$
+
+                                    * $\mu_{loan}$ - **Lending rate mark-up**
+                                    * $\mu_{dep}$ - **Deposit mark-down**
+                                    ''', mathjax=True
                                 ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$r_{loan} (t) = (1 + \\mu_{loan}) \\times \\rho (t)$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$r_{dep} (t) = (1 + \\mu_{dep}) \\times \\rho (t)$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            * $\\mu_{loan}$ - **Lending rate mark-up**
-                                            * $\\mu_{dep}$ - **Deposit mark-down**
-                                            ''',
-                                            mathjax=True
-                                        ),
-                            )], className="card-text")
-                        ],),], style={
-                            'flex': '2'
-                        }, color='primary', outline=True),),
-                        ], style={'marginTop': '20px'}),
+                            ]),
+                        ], className="card-text")
+                    ], style={'flex': '2'}, color='primary', outline=True),
+                ),
+            ]),
             dbc.Row([
                 dbc.Col(
                     dbc.Card([
-                        dbc.CardHeader(html.H4("Фирма"),
-                                        style={'background': "rgba(243,150,154,255)",
-                                               "color": "white"}),
+                        dbc.CardHeader(
+                            html.H4("Фирма"
+                            ), style={'background': "rgba(243,150,154,255)", "color": "white"}
+                        ),
                         dbc.CardBody([
                             html.Div([
-                                html.P([
-                                    '''
+                                dcc.Markdown(
+                                    r'''
+
                                     Агрегированная репрезентативная фирма.
-                                    ''',
-                                    html.Br(),
-                                    '''
+
                                     1. Производит абстрактный гомогенный товар по правилу:
-                                    '''
-                                    ]
-                                ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Y (t) \leq D (t) \\rightarrow Y (t+1) = Y(t) + min[\\eta^+(D(t)-Y(t)), u(t))]$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Y (t) > D (t) \\rightarrow Y (t+1) = Y(t) + \\eta^-(D(t)-Y(t))$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            * $\\eta^-$ - **Excess supply sensitivity**
-                                            * $\\eta^+ = \\rho(t) \\times \\eta^-$ - 
-                                            **Excess demand sensitivity**
-                                            ''',
-                                            mathjax=True
-                                        ),
-                                ),
-                                html.P([
-                                    '''
+                                    $$
+                                    Y(t) \leq D(t) \rightarrow Y(t+1) = Y(t) + min[\eta +(D(t)-Y(t)), u(t)]
+                                    $$
+                                    $$
+                                    Y(t) > D(t) \rightarrow Y (t+1) = Y(t) + \eta^-(D(t)-Y(t))
+                                    $$
+
+                                    * $\eta^-$ - **Excess supply sensitivity**
+                                    * $\eta^+ = \rho(t) \times \eta^-$ - **Excess demand sensitivity**
+
                                     2. Устанавливает цену:
-                                    '''
-                                    ]
-                                ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Y (t) \leq D (t) \\rightarrow 
-                                            p(t+1) = p(t) \\times (1+\\hat{\\pi}(t))
-                                            (1+\\nu_p \\xi_i(t)) 
-                                            $$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Y (t) > D (t) \\rightarrow
-                                            p(t+1) = p(t) \\times (1+\\hat{\\pi}(t))
-                                            (1-\\nu_p \\xi_i(t))
-                                            $$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            * $\\hat{\\pi}(t)$ - ожидаемая инфляция
-                                            * $\\nu_p$ - параметр адаптации цен
-                                            * $\\xi_i(t)$ - случайная величина 
-                                            $~Unif[0;1]$
-                                            ''',
-                                            mathjax=True
-                                        ),
-                                ),
-                                html.P([
-                                    '''
+                                    $$
+                                    Y (t) \leq D (t) \rightarrow p(t+1) = p(t) \times (1+\hat{\pi}(t))(1+\nu_p \xi_i(t))
+                                    $$
+                                    $$
+                                    Y(t) > D(t) \rightarrow p(t+1) = p(t) \times (1+\hat{\pi}(t))(1-\nu_p \xi_i(t))
+                                    $$
+
+                                    * $\hat{\pi}(t)$ - ожидаемая инфляция
+                                    * $\nu_p$ - параметр адаптации цен
+                                    * $\xi_i(t)$ - случайная величина $~Unif[0;1]$
+
                                     3. Выплачивает заработную плату:
-                                    '''
-                                    ]
-                                ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Y (t) \leq D (t) \\rightarrow
-                                            W_i (t+1) = W_i(t) \\times \\gamma 
-                                            \\xi_i(t)
-                                            (1-\\eta_+) (1-u(t))
-                                            (1+\\gamma\\hat{\\pi}(t))$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Y (t) > D (t) \\rightarrow W_i(t+1)=W_i(t)
-                                            \\times \\gamma \\xi_i(t) (1 - \\eta_-) u(t)
-                                            (1+\\gamma \\hat{\\pi} (t))$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            * $\\gamma$ - **Wage rigidity** - 
-                                            параметр "липкости" заработной платы
-                                            * $u(t)$ - безработица в периоде $t$
-                                            ''',
-                                            mathjax=True
-                                        ),
-                                ),
-                                html.P([
-                                    '''
+                                    $$
+                                    Y(t) \leq D(t) \rightarrow W(t+1) = W(t) \times \gamma \xi_i(t)(1-\\eta_+) (1-u(t))(1+\gamma\hat{\pi}(t))
+                                    $$
+                                    $$
+                                    Y (t) > D (t) \rightarrow W(t+1)=W(t)\times \gamma \xi_i(t)(1 - \\eta_-)u(t)(1+\gamma \hat{\pi} (t))
+                                    $$
+                                    * $W(t)$ - базовая ставка заработной платы, которая для каждого агента умножается на его продуктивность
+                                    * $\gamma$ - **Wage rigidity** - параметр "липкости" заработной платы
+                                    * $u(t)$ - безработица в периоде $t$
+
                                     4. Нанимает и увольняет работников:
-                                    '''
-                                    ]
+                                    $$
+                                    Y (t) \leq D (t) \rightarrow N_{hire} = \frac{D(t)-Y(t)}{Y(t)} \times (1-u(t))
+                                    $$
+                                    $$
+                                    Y (t) > D (t) \rightarrow N_{fire}= \frac{D(t)-Y(t)}{Y(t)} \times (1-u(t))
+                                    $$
+                                    ''', mathjax=True
                                 ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Y (t) \leq D (t) \\rightarrow 
-                                            N_{hire} = \\eta_+ (D(t)-Y(t))\\times u(t)$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Y (t) > D (t) \\rightarrow 
-                                            N_{fire}=\\eta_- (D(t)-Y(t))\\times (1-u(t))$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            ''',
-                                            mathjax=True
-                                        ),
-                                ),
-                            ])], className="card-text")
-                                    ], color='secondary', outline=True),
-                                    ),
-                                    dbc.Col(
+                            ]),
+                        ], className="card-text")
+                    ], style={'flex': '2'}, color='secondary', outline=True),
+                ),
+                dbc.Col(
                     dbc.Card([
-                        dbc.CardHeader(html.H4("Домохозяйства"),
-                                        style={'background': "rgba(255,206,103,255)",
-                                               "color": "white"}),
+                        dbc.CardHeader(
+                            html.H4("Домохозяйства"
+                            ), style={'background': "rgba(255,206,103,255)", "color": "white"}
+                        ),
                         dbc.CardBody([
                             html.Div([
-                                html.P([
-                                    '''
-                                    Гетерогенные домохозяйства. Их количество 
-                                    N - регулируемый параметр модели. Каждое домохозяйство
-                                    ''',
-                                    html.Br(),
-                                    '''
-                                    1. Планирует потребление:
-                                    '''
-                                    ]
+                                dcc.Markdown(
+                                    r'''
+                                    Гетерогенные домохозяйства. Их количество N - регулируемый параметр модели. Каждое домохозяйство
+
+                                    1. Планирует потребление 
+
+                                    $$
+                                    ptc = \sigma[(1+\alpha)(\hat{\pi}(t)- r_{dep} (t))]
+                                    $$
+                                    $$
+                                    Z_i(t)=ptc \times \hat{W_i}(t) + k_i(t)
+                                    $$
+
+                                    * $\alpha$ - чувствительность к инфляциии изменению ставок на депозиты
+                                    * $ptc$ - склонность к потреблению из дохода
+                                    * $Z_i (t)$ - желаемый уровень потребления
+                                    * $\hat{W_i}(t)$ - ожидаемая заработная плата в периоде t, формируется наивным способом: $\hat{W_i}(t) = W_i(t-1)$
+                                    * $k_i(t)$ - случайная величина $~N(\mu_k,\sigma_k)$
+
+
+                                    2. Получает заработную плату от фирмы: 
+
+                                    $$
+                                    W_i(t)=W(t)*A_i(t) 
+                                    $$
+
+                                    3. Совершает операции на кредитном рынке:
+
+                                    Сберегает, если $Z_i(t)+I_i \leq B_i(t)$:
+                                    $$
+                                    Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{dep})
+                                    $$
+
+                                    Берет в долг, если $Z_i(t)+I_i > B_i(t)$:
+
+                                    Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) <= ltv \times B_i(t)$:
+                                    $$
+                                    Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{loan})
+                                    $$
+
+                                    Есть ограничения ликвидности, если $Z_i(t)+I_i-B_i(t) > ltv \times B_i(t)$:
+                                    - Домохозяйство решает не инвестировать $I_i=0$
+                                    - Если $Z_i(t)-B_i(t) <= ltv \times B_i(t)$, то
+                                    $$
+                                    Cred_i(t) = (Z_i(t)-B_i(t)) \times (1+r_{loan})
+                                    $$
+                                    - Иначе, д/х все еще ограничено, тогда:
+                                    $$
+                                    Cred_i(t) = ltv \times B_i(t) \times (1+r_{loan})
+                                    $$
+
+                                    4. Инвестирует в свою продуктивность:
+                                    $$
+                                    A_i(t+1) = A_i(t) * (1 + \xi_i (t))
+                                    $$
+
+                                    * $\xi_i (t)$ - случайная величина с распределением, параметры которого зависят от того, инвестировало ли домохозяйство фиксированную сумму в этом периоде - $N (\mu_1, \sigma_1)$ или $N (\mu_2, \sigma_2)$
+
+                                    5. Потребляет:
+
+                                    Если д/х сберегает или не имеет ограничений ликвидности, то оно может позволить себе желаемое потребление:
+                                    $$
+                                    C_i(t) = Z_i(t)
+                                    $$
+
+                                    Иначе:
+                                    $$
+                                    C_i(t) = ltv * B_i(t)
+                                    $$
+                                    ''', mathjax=True
                                 ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$ptc = \\sigma[(1+\\alpha)(\\hat{\\pi}(t)-
-                                            r_{dep} (t))]$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$Z_i(t)= ptc \\times W_i(t) +
-                                            k_i(t)$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            * $\\alpha$ - чувствительность к инфляции
-                                            и изменению ставок на депозиты
-                                            * $ptc$ - склонность к потреблению из дохода
-                                            * $Z_i (t)$ - желаемый уровень потребления
-                                            * $k_i(t)$ - случайная величина $~N(\\mu_k,\\sigma_k)$
-                                            ''',
-                                            mathjax=True
-                                        ),
+                            ]),
+                        ], className="card-text")
+                    ], style={'flex': '2'}, color='warning', outline=True),
+                ),
+            ], style={'marginTop': '20px'}),
+            dbc.Row([
+                dbc.Col(
+                    dbc.Card([
+                        dbc.CardHeader(
+                            html.H4("Переменные модели"
+                            ), style={'background': "rgba(108,195,213,255)", "color": "white"}
+                        ),
+                        dbc.CardBody([
+                            html.Div([
+                                dcc.Markdown(
+                                    r'''
+                                    Инфляция:
+                                    $$
+                                    \pi(t)=\frac{p(t)-p(t-1)}{p(t-1)}
+                                    $$
+
+                                    Инфляционные ожидания
+                                    $$
+                                    \hat{\pi}(t)=\tau \pi^* + (1-\tau) \pi^{ema}(t)
+                                    $$
+
+                                    Сглаженная инфляция:
+                                    $$
+                                    \pi^{ema} = \omega \pi(t) + (1-\omega) \pi^{ema}(t-1)
+                                    $$
+
+                                    Агрегированный спрос:
+                                    $$
+                                    D(t)=\Sigma_{i=1}^N C_i(t)
+                                    $$
+
+                                    Безработица:
+                                    $$
+                                    u(t)=u(t-1)+\frac{N_{fire}-N_{hire}}{N}
+                                    $$
+
+                                    * $\tau$ - уровень доверия агентов к ЦБ
+                                    * $\omega$ - параметр "сглаживания" инфляции
+                                    ''', mathjax=True
                                 ),
-                            
-                                html.P([
-                                    '''
-                                    2. Получает заработную плату:
-                                    '''
-                                    ]
-                                ),
-                                # dbc.Container([
-                                #     dbc.Row([
-                                #         dcc.Markdown(
-                                #             '''$$Y (t) \leq D (t) \\rightarrow Y (t+1) = Y(t) + min[\\eta^+(D(t)-Y(t)), u(t))]$$''',
-                                #             mathjax=True
-                                #         ),
-                                #     ], align="center", className=["h-50", 'text-dark'],
-                                #         style={'font-size': '16px'}
-                                #         )],
-                                #     ),
-                                # dbc.Container([
-                                #     dbc.Row([
-                                #         dcc.Markdown(
-                                #             '$$Y (t) > D (t) \\rightarrow Y (t+1) = Y(t) + \\eta^-(D(t)-Y(t))$$',
-                                #             mathjax=True
-                                #         ),
-                                #     ], align="center", className=["h-50", 'text-dark'],
-                                #         style={'font-size': '16px'}
-                                #         )],
-                                #     ),
-                                # html.P(
-                                #     dcc.Markdown(
-                                #             '''
-                                #             * $\\eta^+$ - **Lending rate mark-up** - 
-                                #             гиперпараметр, 
-                                #             * $\\eta^-$ - **Deposit mark-down** -
-                                #             ''',
-                                #             mathjax=True
-                                #         ),
-                                # ),
-                                html.P([
-                                    '''
-                                    3. Инвестирует в свою продуктивность:
-                                    '''
-                                    ]
-                                ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown(
-                                            '''$$A_i(t+1) = A_i(t) * (1 + \\xi_i (t))$$''',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            * $\\xi_i (t)$ - случайная величина с распределением,
-                                            параметры которого зависят от того,
-                                            инвестировало ли домохозяйство фиксированную
-                                            сумму в этом периоде - 
-                                            $N (\\mu_1, \\sigma_1)$ или $N (\\mu_2, \\sigma_2)$ 
-                                            ''',
-                                            mathjax=True
-                                        ),
-                                ),
-                                html.P([
-                                    '''
-                                    4. Совершает операции на кредитном рынке:
-                                    '''
-                                    ]
-                                ),
-                                dbc.Container([
-                                    dbc.Row([
-                                        dcc.Markdown('',
-                                            mathjax=True
-                                        ),
-                                    ], align="center", className=["h-50", 'text-dark'],
-                                        style={'font-size': '16px'}
-                                        )],
-                                    ),
-                                html.P(
-                                    dcc.Markdown(
-                                            '''
-                                            ''',
-                                            mathjax=True
-                                        ),
-                                ),
-                            ])], className="card-text")
-                                    ], color='warning', outline=True),
-                                    )], style={
-                                        'marginTop': '20px',
-                                    },),
-                                ], style={'marginLeft': '20px',
-                                        'marginRight': '20px'},
-                                        className='text-dark'),
+                            ]),
+                        ], className="card-text")
+                    ], style={'flex': '2'}, color='info', outline=True),
+                ),
+            ], style={'marginTop': '20px'})
+        ], style={'marginLeft': '20px',
+                  'marginRight': '20px'}, className='text-dark')
     return html.P("Something went wrong...")
 
 
@@ -708,7 +546,8 @@ def switch_tab(at):
      Output('cb-rate-graph', 'figure', allow_duplicate=True),
      Output('output-demand-graph', 'figure', allow_duplicate=True),
      Output('inf-graph', 'figure', allow_duplicate=True),
-     Output('price-graph', 'figure', allow_duplicate=True)],
+     Output('price-graph', 'figure', allow_duplicate=True),
+     Output('u-graph', 'figure', allow_duplicate=True)],
     [Input('interval-component', 'n_intervals')],
     prevent_initial_call=True,
 )
@@ -764,8 +603,15 @@ def update_graphs_live(n_intervals):
         title='Price',
         xaxis_title='Step'
         )
+    
+    u_fig = go.Figure()
+    u_fig.add_trace(go.Line(y=model.datacollector.model_vars['Unemployment']))
+    u_fig.update_layout(
+        title='Unemployment',
+        xaxis_title='Step'
+        )
 
-    return gini_fig, cb_rate_fig, output_demand_fig, inf_fig, price_fig
+    return gini_fig, cb_rate_fig, output_demand_fig, inf_fig, price_fig, u_fig
 
 
 @app.callback(
@@ -774,6 +620,7 @@ def update_graphs_live(n_intervals):
      Output('output-demand-graph', 'figure'),
      Output('inf-graph', 'figure'),
      Output('price-graph', 'figure'),
+     Output('u-graph', 'figure'),
      ],
     [Input('reset-button', 'n_clicks')],
     [State('number_of_agents', 'value'),
@@ -790,7 +637,8 @@ def callback_func_reset_interval(button_clicks, *args):
             blank_fig(title='CB Rate', xaxis_title='Step'),
             blank_fig(title='Output and demand', xaxis_title='Step'),
             blank_fig(title='Inflation', xaxis_title='Step'),
-            blank_fig(title='Price', xaxis_title='Step')
+            blank_fig(title='Price', xaxis_title='Step'),
+            blank_fig(title='Unemployment', xaxis_title='Step')
             )
 
 
@@ -821,4 +669,4 @@ def interval_fps(value):
 seed = np.random.seed(0)
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='localhost')
+    app.run_server(debug=False, host='localhost')
