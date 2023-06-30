@@ -144,32 +144,16 @@ $$
 
 3. Совершает операции на кредитном рынке:
 
-- Сберегает, если $Z_i(t)+I_i \leq B_i(t)$:
-
-$$
-Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{dep})
-$$
+- Сберегает, если $Z_i(t)+I_i \leq B_i(t)$: $Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{dep})$
 
 - Берет в долг, если $Z_i(t)+I_i > B_i(t)$:
 
-    - Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) \leq ltv \times B_i(t)$:
-
-$$
-Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{loan})
-$$
+    - Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) \leq ltv \times B_i(t)$: $Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{loan})$
 
     - Есть ограничения ликвидности, если $Z_i(t)+I_i-B_i(t) > ltv \times B_i(t)$: домохозяйство решает не инвестировать, $I_i$=0
-        - Если $Z_i(t)-B_i(t) \leq ltv \times B_i(t)$, то
+        - Если $Z_i(t)-B_i(t) \leq ltv \times B_i(t)$, то $Cred_i(t) = (Z_i(t)-B_i(t)) \times (1+r_{loan})$
 
-$$
-Cred_i(t) = (Z_i(t)-B_i(t)) \times (1+r_{loan})
-$$
-
-        - Иначе, д/х все еще ограничено, тогда:
-
-$$
-Cred_i(t) = ltv \times B_i(t) \times (1+r_{loan})
-$$
+        - Иначе, д/х все еще ограничено, тогда: $Cred_i(t) = ltv \times B_i(t) \times (1+r_{loan})$
 
 4. Инвестирует в свою продуктивность:
 
