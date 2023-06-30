@@ -10,7 +10,6 @@ bank:
   mu_dep: 0.1
   ltv: 0.5
 firm:
-  output_zero: 1000
   adj_w: 0.1
   adj_p: 0.4 # скорость адаптации цены
   nu_2: 0.2
@@ -25,4 +24,4 @@ household:
   sigma: 0.0115
   inv_cost: 40
   mean_w: 100
-  sigma_w: 30
+  sigma_w: 25

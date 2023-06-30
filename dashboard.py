@@ -31,10 +31,10 @@ row4 = html.Tr([html.Td("Loan-to-value ratio"), html.Td(dcc.Markdown("$ltv$",mat
 row5 = html.Tr([html.Td("Price adjustment"), html.Td(dcc.Markdown("$\\nu_p$",mathjax=True)), html.Td("0.1")])
 row6 = html.Tr([html.Td("Excess supply sensitivity"), html.Td(dcc.Markdown("$\\eta_-$",mathjax=True)), html.Td("0.2")])
 row7 = html.Tr([html.Td("Excess demand sensitivity"), html.Td(dcc.Markdown("$\\eta_+$",mathjax=True)), html.Td(dcc.Markdown("$\\rho (t) \\eta_-$",mathjax=True))])
-row8 = html.Tr([html.Td("Wage rigidity"), html.Td(dcc.Markdown("$\\gamma$",mathjax=True)), html.Td("0.6")])
+row8 = html.Tr([html.Td("Wage rigidity"), html.Td(dcc.Markdown("$\\gamma$",mathjax=True)), html.Td("0.1")])
 row9 = html.Tr([html.Td("Household sensitivity parameter"), html.Td(dcc.Markdown("$\\alpha$",mathjax=True)), html.Td("0.05")])
-row10 = html.Tr([html.Td("EV of idiosyncratic consumption"), html.Td(dcc.Markdown("$\\mu_k$",mathjax=True)), html.Td("20")])
-row11 = html.Tr([html.Td("St.dev. of idiosyncratic consumption"), html.Td(dcc.Markdown("$\\sigma_k$",mathjax=True)), html.Td("10")])
+row10 = html.Tr([html.Td("EV of idiosyncratic consumption"), html.Td(dcc.Markdown("$\\mu_k$",mathjax=True)), html.Td("5")])
+row11 = html.Tr([html.Td("St.dev. of idiosyncratic consumption"), html.Td(dcc.Markdown("$\\sigma_k$",mathjax=True)), html.Td("2")])
 row12 = html.Tr([html.Td("EV in case of investment"), html.Td(dcc.Markdown("$\\mu_1$",mathjax=True)), html.Td("0.012")])
 row13 = html.Tr([html.Td("EV in case of no investment"), html.Td(dcc.Markdown("$\\mu_2$",mathjax=True)), html.Td("0.01")])
 row14 = html.Tr([html.Td("St.dev. of investment outcome"), html.Td(dcc.Markdown("$\\sigma$",mathjax=True)), html.Td("0.0115")])
@@ -108,8 +108,8 @@ def switch_tab(at):
 
                     html.Label("Baseline interest rate"),
                     dbc.Input(id='baseline_interest_rate',
-                        value=0,
-                        placeholder='0',
+                        value=0.05,
+                        placeholder='0.05',
                         type='number'),
 
                     html.Label("Intensity of Central Bank policy"),

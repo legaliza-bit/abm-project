@@ -211,3 +211,9 @@ $$
 $$
 u(t)=u(t-1)+\frac{N_{fire}-N_{hire}}{N}
 $$
+
+
+## Источники:
+1. [Jean-Philippe Bouchaud, Stanislao Gualdi, Marco Tarzia, and Francesco Zamponi (2017). Optimal inflation target: insights from an agent-based model. Economics Discussion Papers, No 2017-64, Kiel Institute for the World Economy.](https://arxiv.org/abs/1709.05117)
+2. [Stanislao Gualdi, Marco Tarzia, Francesco Zamponi, Jean-Philippe Bouchaud, Tipping points in macroeconomic agent-based models, Journal of Economic Dynamics and Control, Volume 50, 2015,Pages 29-61](https://arxiv.org/abs/1307.5319)
+3. [Palagi, Elisa and Napoletano, Mauro and Roventini, Andrea and Gaffard, Jean-Luc, An agent-based model of trickle-up growth and income inequality (June 23, 2021)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3873764)
