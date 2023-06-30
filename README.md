@@ -64,15 +64,15 @@ $$
 1. Производит абстрактный гомогенный товар по правилу:
 
 $$
-Y(t) \leq D(t) \rightarrow Y(t+1) = Y(t) + min[\eta +(D(t)-Y(t)), u(t)]
+Y(t) \leq D(t) \rightarrow Y(t+1) = Y(t) + min[\eta_+ (D(t)-Y(t)), u(t)]
 $$
 
 $$
-Y(t) > D(t) \rightarrow Y (t+1) = Y(t) + \eta^-(D(t)-Y(t))
+Y(t) > D(t) \rightarrow Y (t+1) = Y(t) + \eta_-(D(t)-Y(t))
 $$
 
-* $\eta^-$ - **Excess supply sensitivity**
-* $\eta^+ = \rho(t) \times \eta^-$ - **Excess demand sensitivity**
+* $\eta_-$ - **Excess supply sensitivity**
+* $\eta_+ = \rho(t) \times \eta^-$ - **Excess demand sensitivity**
 
 2. Устанавливает цену:
 
@@ -111,6 +111,7 @@ $$
 $$
 Y (t) > D (t) \rightarrow N_{fire}= \frac{D(t)-Y(t)}{Y(t)} \times (1-u(t))
 $$
+* $N_{hire/fire}$ - количество работников, которое фирма хочет нанять/уволить в периоде t
 
 <br/>
 
@@ -128,7 +129,7 @@ $$
 Z_i(t)=ptc \times \hat{W_i}(t) + k_i(t)
 $$
 
-* $\alpha$ - чувствительность к инфляциии изменению ставок на депозиты
+* $\alpha$ - чувствительность к инфляциии и изменению ставок на депозиты
 * $ptc$ - склонность к потреблению из дохода
 * $Z_i (t)$ - желаемый уровень потребления
 * $\hat{W_i}(t)$ - ожидаемая заработная плата в периоде t, формируется наивным способом: $\hat{W_i}(t) = W_i(t-1)$
@@ -143,33 +144,32 @@ $$
 
 3. Совершает операции на кредитном рынке:
 
-Сберегает, если $Z_i(t)+I_i \leq B_i(t)$:
+- Сберегает, если $Z_i(t)+I_i \leq B_i(t)$:
 
 $$
 Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{dep})
 $$
 
-Берет в долг, если $Z_i(t)+I_i > B_i(t)$:
+- Берет в долг, если $Z_i(t)+I_i > B_i(t)$:
 
-Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) \leq ltv \times B_i(t)$:
+    - Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) \leq ltv \times B_i(t)$:
 
-$$
-Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{loan})
-$$
+    $$
+    Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{loan})
+    $$
 
-Есть ограничения ликвидности, если $Z_i(t)+I_i-B_i(t) > ltv \times B_i(t)$:
-- Домохозяйство решает не инвестировать I_i=0
-- Если $Z_i(t)-B_i(t) \leq ltv \times B_i(t)$, то
+    - Есть ограничения ликвидности, если $Z_i(t)+I_i-B_i(t) > ltv \times B_i(t)$: домохозяйство решает не инвестировать, $I_i$=0
+        - Если $Z_i(t)-B_i(t) \leq ltv \times B_i(t)$, то
 
-$$
-Cred_i(t) = (Z_i(t)-B_i(t)) \times (1+r_{loan})
-$$
+        $$
+        Cred_i(t) = (Z_i(t)-B_i(t)) \times (1+r_{loan})
+        $$
 
-- Иначе, д/х все еще ограничено, тогда:
+        - Иначе, д/х все еще ограничено, тогда:
 
-$$
-Cred_i(t) = ltv \times B_i(t) \times (1+r_{loan})
-$$
+        $$
+        Cred_i(t) = ltv \times B_i(t) \times (1+r_{loan})
+        $$
 
 4. Инвестирует в свою продуктивность:
 
