@@ -248,19 +248,19 @@ def switch_tab(at):
                     }),
             html.Div([
                 html.Div(
-                    dcc.Graph(id='price-graph',
-                            figure=blank_fig(
-                                title='Price',
-                                xaxis_title='Step')
-                            ),
-                    style={'width': '48%', 'flex': '1'}
-                ),
-                html.Div(
                     dcc.Graph(id='u-graph',
                             figure=blank_fig(
                                 title='Unemployment',
                                 xaxis_title='Step')
                             ),
+                    style={'width': '48%', 'flex': '1'}
+                ),
+                html.Div(
+                #     dcc.Graph(id='price-graph',
+                #             figure=blank_fig(
+                #                 title='Price',
+                #                 xaxis_title='Step')
+                #             ),
                     style={'width': '48%', 'flex': '1'}
                 ),
             ], 
@@ -311,11 +311,11 @@ def switch_tab(at):
                                     * $\pi^*$ - **Central Bank target rate** - целевой уровень инфляции, устанавливаемый ЦБ
                                     * $\pi^{ema} (t)$ - экспоненциальное скользящее среднее инфляции в текущий период:
                                     ''', mathjax=True
-                                ),
-                            ]),
-                        ], className="card-text")
-                    ], style={'flex': '2'}, color='danger', outline=True),
-                ),
+                                    ),
+                                ]),
+                            ], className="card-text")
+                    ], style={'flex': '2'}, color='danger', outline=True)
+                ), 
                 dbc.Col(
                     dbc.Card([
                         dbc.CardHeader(
@@ -362,7 +362,7 @@ def switch_tab(at):
 
                                     1. Производит абстрактный гомогенный товар по правилу:
                                     $$
-                                    Y(t) \leq D(t) \rightarrow Y(t+1) = Y(t) + min[\eta +(D(t)-Y(t)), u(t)]
+                                    Y(t) \leq D(t) \rightarrow Y(t+1) = Y(t) + min[\eta^+ (D(t)-Y(t)), u(t)]
                                     $$
                                     $$
                                     Y(t) > D(t) \rightarrow Y (t+1) = Y(t) + \eta^-(D(t)-Y(t))
@@ -385,10 +385,10 @@ def switch_tab(at):
 
                                     3. Выплачивает заработную плату:
                                     $$
-                                    Y(t) \leq D(t) \rightarrow W(t+1) = W(t) \times \gamma \xi_i(t)(1-\\eta_+) (1-u(t))(1+\gamma\hat{\pi}(t))
+                                    Y(t) \leq D(t) \rightarrow W(t+1) = W(t) \times \gamma \xi_i(t)(1-\eta^+) (1-u(t))(1+\gamma\hat{\pi}(t))
                                     $$
                                     $$
-                                    Y (t) > D (t) \rightarrow W(t+1)=W(t)\times \gamma \xi_i(t)(1 - \\eta_-)u(t)(1+\gamma \hat{\pi} (t))
+                                    Y (t) > D (t) \rightarrow W(t+1)=W(t)\times \gamma \xi_i(t)(1 - \eta^-)u(t)(1+\gamma \hat{\pi} (t))
                                     $$
                                     * $W(t)$ - базовая ставка заработной платы, которая для каждого агента умножается на его продуктивность
                                     * $\gamma$ - **Wage rigidity** - параметр "липкости" заработной платы
@@ -428,7 +428,7 @@ def switch_tab(at):
                                     Z_i(t)=ptc \times \hat{W_i}(t) + k_i(t)
                                     $$
 
-                                    * $\alpha$ - чувствительность к инфляциии изменению ставок на депозиты
+                                    * $\alpha$ - чувствительность к инфляциии и изменению ставок на депозиты
                                     * $ptc$ - склонность к потреблению из дохода
                                     * $Z_i (t)$ - желаемый уровень потребления
                                     * $\hat{W_i}(t)$ - ожидаемая заработная плата в периоде t, формируется наивным способом: $\hat{W_i}(t) = W_i(t-1)$
@@ -450,25 +450,25 @@ def switch_tab(at):
 
                                     Берет в долг, если $Z_i(t)+I_i > B_i(t)$:
 
-                                    Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) <= ltv \times B_i(t)$:
+                                    Нет ограничений ликвидности, если $Z_i(t)+I_i-B_i(t) \leq ltv \times B_i(t)$:
                                     $$
                                     Cred_i(t) = (Z_i(t)+I_i-B_i(t)) \times (1+r_{loan})
                                     $$
 
                                     Есть ограничения ликвидности, если $Z_i(t)+I_i-B_i(t) > ltv \times B_i(t)$:
                                     - Домохозяйство решает не инвестировать $I_i=0$
-                                    - Если $Z_i(t)-B_i(t) <= ltv \times B_i(t)$, то
+                                    - Если $Z_i(t)-B_i(t) \leq ltv \times B_i(t)$, то
                                     $$
                                     Cred_i(t) = (Z_i(t)-B_i(t)) \times (1+r_{loan})
                                     $$
-                                    - Иначе, д/х все еще ограничено, тогда:
+                                    - Иначе д/х все еще ограничено, тогда:
                                     $$
                                     Cred_i(t) = ltv \times B_i(t) \times (1+r_{loan})
                                     $$
 
                                     4. Инвестирует в свою продуктивность:
                                     $$
-                                    A_i(t+1) = A_i(t) * (1 + \xi_i (t))
+                                    A_i(t+1) = A_i(t) \times (1 + \xi_i (t))
                                     $$
 
                                     * $\xi_i (t)$ - случайная величина с распределением, параметры которого зависят от того, инвестировало ли домохозяйство фиксированную сумму в этом периоде - $N (\mu_1, \sigma_1)$ или $N (\mu_2, \sigma_2)$
@@ -482,7 +482,7 @@ def switch_tab(at):
 
                                     Иначе:
                                     $$
-                                    C_i(t) = ltv * B_i(t)
+                                    C_i(t) = ltv \times B_i(t)
                                     $$
                                     ''', mathjax=True
                                 ),
@@ -546,7 +546,7 @@ def switch_tab(at):
      Output('cb-rate-graph', 'figure', allow_duplicate=True),
      Output('output-demand-graph', 'figure', allow_duplicate=True),
      Output('inf-graph', 'figure', allow_duplicate=True),
-     Output('price-graph', 'figure', allow_duplicate=True),
+    #  Output('price-graph', 'figure', allow_duplicate=True),
      Output('u-graph', 'figure', allow_duplicate=True)],
     [Input('interval-component', 'n_intervals')],
     prevent_initial_call=True,
@@ -581,7 +581,7 @@ def update_graphs_live(n_intervals):
         title='Output and demand',
         xaxis_title='Step'
         )
- 
+
     inf_fig = go.Figure()
     inf_fig.add_trace(go.Line(y=model.datacollector.model_vars['Actual Inflation'],
                               name='Actual Inflation')
@@ -596,14 +596,14 @@ def update_graphs_live(n_intervals):
         title='Inflation',
         xaxis_title='Step'
         )
-    
-    price_fig = go.Figure()
-    price_fig.add_trace(go.Line(y=model.datacollector.model_vars['Price']))
-    price_fig.update_layout(
-        title='Price',
-        xaxis_title='Step'
-        )
-    
+
+    # price_fig = go.Figure()
+    # price_fig.add_trace(go.Line(y=model.datacollector.model_vars['Price']))
+    # price_fig.update_layout(
+    #     title='Price',
+    #     xaxis_title='Step'
+    #     )
+
     u_fig = go.Figure()
     u_fig.add_trace(go.Line(y=model.datacollector.model_vars['Unemployment']))
     u_fig.update_layout(
@@ -611,7 +611,7 @@ def update_graphs_live(n_intervals):
         xaxis_title='Step'
         )
 
-    return gini_fig, cb_rate_fig, output_demand_fig, inf_fig, price_fig, u_fig
+    return gini_fig, cb_rate_fig, output_demand_fig, inf_fig, u_fig
 
 
 @app.callback(
@@ -619,7 +619,7 @@ def update_graphs_live(n_intervals):
      Output('cb-rate-graph', 'figure'),
      Output('output-demand-graph', 'figure'),
      Output('inf-graph', 'figure'),
-     Output('price-graph', 'figure'),
+    #  Output('price-graph', 'figure'),
      Output('u-graph', 'figure'),
      ],
     [Input('reset-button', 'n_clicks')],
@@ -637,7 +637,7 @@ def callback_func_reset_interval(button_clicks, *args):
             blank_fig(title='CB Rate', xaxis_title='Step'),
             blank_fig(title='Output and demand', xaxis_title='Step'),
             blank_fig(title='Inflation', xaxis_title='Step'),
-            blank_fig(title='Price', xaxis_title='Step'),
+            # blank_fig(title='Price', xaxis_title='Step'),
             blank_fig(title='Unemployment', xaxis_title='Step')
             )
 
@@ -669,4 +669,4 @@ def interval_fps(value):
 seed = np.random.seed(0)
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='localhost')
+    app.run_server(debug=True, host='localhost')

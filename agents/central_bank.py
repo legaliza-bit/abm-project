@@ -1,5 +1,4 @@
 import mesa
-import numpy as np
 
 
 class CentralBank(mesa.Agent):

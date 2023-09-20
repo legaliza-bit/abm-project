@@ -6,7 +6,17 @@ from agents.central_bank import CentralBank
 from agents.bank import Bank
 from agents.firm import Firm
 
-from reporters import *
+from reporters import (
+    compute_gini,
+    show_inf_actual,
+    show_inf_ema,
+    show_inf_expec,
+    show_output,
+    show_demand,
+    show_price,
+    show_rate,
+    show_unemployment
+)
 
 
 with open("params.yaml", 'r') as stream:
@@ -110,12 +120,9 @@ class EconomyModel(mesa.Model):
 
     def upd_inflation(self):
         # inflation expectations are formed adaptively
-        self.inf_expec = self.trust * self.inf_target + (
-            1 - self.trust) * self.inf_actual
+        self.inf_expec = self.trust * self.inf_target + (1 - self.trust) * self.inf_actual
 
-        self.inf_actual = (
-            self.firm.price - self.firm.prev_price
-            ) / self.firm.prev_price
+        self.inf_actual = (self.firm.price - self.firm.prev_price) / self.firm.prev_price
 
         if self.schedule.steps < 20:
             self.inf_ema = self.inf_actual

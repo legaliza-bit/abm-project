@@ -16,7 +16,7 @@ class Firm(mesa.Agent):
             ):
         super().__init__(unique_id, model)
         self.cb = central_bank
-        self.output = output_0
+        self.output = self.model.num_agents
         self.adj_p = firm_params['adj_p']
         self.adj_w = firm_params['adj_w']
         self.nu_2 = firm_params['nu_2']
@@ -102,7 +102,7 @@ class Firm(mesa.Agent):
             self.base_wage *= (1 + self.sens * (1 - self.nu_1) * (
                     1 - self.model.unemployment) * np.random.uniform(0, 1)) * (
                     1 + self.sens * self.model.inf_expec)
-            
+
             for e in self.wages.keys():
                 self.wages[e] = self.base_wage * e.productivity
 
@@ -119,7 +119,7 @@ class Firm(mesa.Agent):
             self.base_wage *= (
                     1 - self.nu_2 * self.model.unemployment * np.random.uniform(0, 1)
                     ) * (1 + self.sens * self.model.inf_expec)
-            
+
             for e in self.wages.keys():
                 self.wages[e] = self.base_wage * e.productivity
 
